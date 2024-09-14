@@ -19,7 +19,7 @@ ChartJS.register(
   Legend
 );
 
-const BarChart = ({ salesData }: { salesData: any[] }) => {
+const BarChart = React.memo(({ salesData }: { salesData: any[] }) => {
   const categories = [...new Set(salesData.map((data) => data.category))];
   const categorySales = categories.map((category) =>
     salesData
@@ -54,6 +54,6 @@ const BarChart = ({ salesData }: { salesData: any[] }) => {
   };
 
   return <Bar data={data} options={options} />;
-};
+});
 
 export default BarChart;

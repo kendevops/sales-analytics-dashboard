@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChart = ({ salesData }: { salesData: any[] }) => {
+const PieChart = React.memo(({ salesData }: { salesData: any[] }) => {
   const regions = [...new Set(salesData.map((data) => data.region))];
   const regionSales = regions.map((region) =>
     salesData
@@ -47,6 +47,6 @@ const PieChart = ({ salesData }: { salesData: any[] }) => {
   };
 
   return <Pie data={data} options={options} />;
-};
+});
 
 export default PieChart;

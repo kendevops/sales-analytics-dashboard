@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import LineChart from "./components/LineChart";
-import BarChart from "./components/BarChart";
-import PieChart from "./components/PieChart";
+import React, { useState, useMemo } from "react";
 import { DateTime } from "luxon";
 import "./styles/Dashboard.module.css";
 import { salesData } from "./data/salesData";
+const LineChart = React.lazy(() => import("./components/LineChart"));
+const BarChart = React.lazy(() => import("./components/BarChart"));
+const PieChart = React.lazy(() => import("./components/PieChart"));
 
 const App = () => {
   const [selectedDateRange, setSelectedDateRange] = useState({
@@ -13,15 +13,17 @@ const App = () => {
   });
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const filteredSalesData = salesData.filter((data) => {
-    const date = DateTime.fromISO(data.date);
-    const isWithinDateRange =
-      date >= DateTime.fromISO(selectedDateRange.startDate) &&
-      date <= DateTime.fromISO(selectedDateRange.endDate);
-    const isCategoryMatch =
-      selectedCategory === "All" || data.category === selectedCategory;
-    return isWithinDateRange && isCategoryMatch;
-  });
+  const filteredSalesData = useMemo(() => {
+    return salesData.filter((data) => {
+      const date = DateTime.fromISO(data.date);
+      const isWithinDateRange =
+        date >= DateTime.fromISO(selectedDateRange.startDate) &&
+        date <= DateTime.fromISO(selectedDateRange.endDate);
+      const isCategoryMatch =
+        selectedCategory === "All" || data.category === selectedCategory;
+      return isWithinDateRange && isCategoryMatch;
+    });
+  }, [selectedDateRange, selectedCategory]);
 
   const handleDateRangeChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -65,15 +67,11 @@ const App = () => {
       </div>
 
       <div className="charts-container">
-        <div className="chart">
+        <React.Suspense fallback={<div>Loading charts...</div>}>
           <LineChart salesData={filteredSalesData} />
-        </div>
-        <div className="chart">
           <BarChart salesData={filteredSalesData} />
-        </div>
-        <div className="chart">
           <PieChart salesData={filteredSalesData} />
-        </div>
+        </React.Suspense>
       </div>
     </div>
   );

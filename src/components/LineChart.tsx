@@ -22,7 +22,7 @@ ChartJS.register(
   Legend
 );
 
-const LineChart = ({ salesData }: { salesData: any[] }) => {
+const LineChart = React.memo(({ salesData }: { salesData: any[] }) => {
   const labels = salesData.map((data) =>
     DateTime.fromISO(data.date).toLocaleString(DateTime.DATE_SHORT)
   );
@@ -55,6 +55,6 @@ const LineChart = ({ salesData }: { salesData: any[] }) => {
   };
 
   return <Line data={data} options={options} />;
-};
+});
 
 export default LineChart;
