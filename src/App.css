@@ -11,6 +11,12 @@
   box-sizing: border-box;
 }
 
+.dashboard-container h1 {
+  font-size: xx-large;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 /* Filters Section */
 .filters-container {
   width: 100%;
@@ -69,6 +75,9 @@
 
 /* Filter and Chart Responsiveness */
 @media (max-width: 500px) {
+  .dashboard-container h1 {
+    font-size: large;
+  }
   .filters-container {
     flex-direction: column;
     align-items: flex-start;
