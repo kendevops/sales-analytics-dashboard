@@ -1,17 +1,40 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DateTime } from "luxon";
-import "./styles/Dashboard.module.css";
-import { salesData } from "./data/salesData";
+import "./App.css";
+
 const LineChart = React.lazy(() => import("./components/LineChart"));
 const BarChart = React.lazy(() => import("./components/BarChart"));
 const PieChart = React.lazy(() => import("./components/PieChart"));
 
+interface SalesDataProps {
+  date: string;
+  category: string;
+  region: string;
+  sales: number;
+}
+
 const App = () => {
+  const [salesData, setSalesData] = useState<SalesDataProps[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [selectedDateRange, setSelectedDateRange] = useState({
     startDate: DateTime.now().minus({ months: 1 }).toISODate(),
     endDate: DateTime.now().toISODate(),
   });
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  useEffect(() => {
+    fetch("/salesData.json")
+      .then((response) => response.json())
+      .then((data: SalesDataProps[]) => {
+        setSalesData(data);
+
+        const uniqueCategories = Array.from(
+          new Set(data.map((item: any) => item.category))
+        );
+        setCategories(uniqueCategories);
+      })
+      .catch((error) => console.error("Error fetching sales data:", error));
+  }, []);
 
   const filteredSalesData = useMemo(() => {
     return salesData.filter((data) => {
@@ -23,7 +46,7 @@ const App = () => {
         selectedCategory === "All" || data.category === selectedCategory;
       return isWithinDateRange && isCategoryMatch;
     });
-  }, [selectedDateRange, selectedCategory]);
+  }, [salesData, selectedDateRange, selectedCategory]);
 
   const handleDateRangeChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -59,18 +82,26 @@ const App = () => {
           <label>Category:</label>
           <select value={selectedCategory} onChange={handleCategoryChange}>
             <option value="All">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Furniture">Furniture</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
           </select>
         </div>
       </div>
 
       <div className="charts-container">
         <React.Suspense fallback={<div>Loading charts...</div>}>
-          <LineChart salesData={filteredSalesData} />
-          <BarChart salesData={filteredSalesData} />
-          <PieChart salesData={filteredSalesData} />
+          <div className="chart">
+            <LineChart salesData={filteredSalesData} />
+          </div>
+          <div className="chart">
+            <BarChart salesData={filteredSalesData} />
+          </div>
+          <div className="chart">
+            <PieChart salesData={filteredSalesData} />
+          </div>
         </React.Suspense>
       </div>
     </div>
